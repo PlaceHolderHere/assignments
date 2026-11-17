@@ -1,0 +1,244 @@
+START
+    DECLARE
+        String accountName
+        String password
+        String accountType
+        bool isLoggedIn
+        bool isRunning
+        int counterValue
+        int counterLimit
+        int venueRequest
+        int venue
+        String venueName
+        String date
+        String time
+        String reason
+        bool isLoopRunning
+        bool scheduleConflicts
+        ArrayList<String> venues
+        ArrayList<ArrayList<String[]>>  venueRequests
+    SET 
+        isLoggedIn = false
+        isRunning = true
+    WHILE isRunning == true
+        IF isLoggedIn = true
+            DISPLAY “----------------------------------------------------------”
+            DISPLAY “0 - quit”
+            DISPLAY “1 - logout”
+            DISPLAY “2 - View Venues”
+            DISPLAY “3 - Check Venue Availability”
+            DISPLAY “4 - Make a Reservation”
+            DISPLAY “5 - View a Reservation“
+            
+            IF accountType == “ADMIN”
+                DISPLAY “6 - Review a Venue Request”
+                DISPLAY “7 - Create a Venue”
+                DISPLAY "8 - Delete a Venue"
+            ENDIF
+            DISPLAY “----------------------------------------------------------”
+            
+            GET choice
+            // PROCESSING CHOICES
+            IF choice == 0
+                SET isRunning = false
+
+            ELSEIF choice == 1
+                SET isLoggedIn = false
+            
+            ELSEIF choice == 2
+                DISPLAY "Available Venues:”
+                SET counterValue = 0
+                SET counterLimit = venues.size()
+                WHILE counterValue < counterLimit
+                    DISPLAY (counterValue + 1) + “. “ + venues[counterValue]
+                    SET counterValue = counterValue + 1
+                ENDWHILE
+            
+            ELSEIF choice == 3
+                DISPLAY "enter venue"
+                INPUT venue
+                DISPLAY "enter reservation date"
+                INPUT date
+                DISPLAY "enter reservation time"
+                INPUT time
+                DISPLAY "checking availability..."
+                DISPLAY venueAvailability
+
+                SET counterValue = 0
+                SET counterLimit = venueRequests.get(venue).size()
+                SET scheduleConflicts = false;
+                WHILE counterValue < counterLimit
+                    IF venueRequests.get(venue).get(counterValue) != “REJECTED” OR venueRequests.get(venue).get(counterValue) != “PENDING”
+                        IF date >= venueRequests.get(venue).get(counterValue)[0] && date <= venueRequests.get(venue).get(counterValue)[0]
+                            IF time >= venueRequests.get(venue).get(counterValue)[1] && date <= venueRequests.get(venue).get(counterValue)[1]
+                                SET scheduleConflicts = true
+                                SET counterValue = counterLimit + 1
+                            ENDIF
+                        ENDIF
+                    ENDIF
+                SET counterValue = counterValue + 1
+                ENDWHILE
+
+                IF scheduleConflicts
+                    DISPLAY “Schedule Unavailable”
+                ELSE
+                    DISPLAY “Schedule Available”
+            
+            ELSEIF choice == 4
+                SET isLoopRunning = true
+                WHILE isLoopRunning
+                    DISPLAY "enter venue or -1 to quit"
+                    INPUT venue
+                    
+                    IF venue = -1
+                        isLoopRunning = false
+                    ELSE
+                        DISPLAY "enter reservation date"
+                        INPUT date
+                        DISPLAY "enter reservation time"
+                        INPUT time
+
+                        SET counterValue = 0
+                        SET counterLimit = venueRequests.get(venue).size()
+                        SET scheduleConflicts = false;
+                        WHILE counterValue < counterLimit
+                        IF venueRequests.get(venue).get(counterValue) != “REJECTED” OR venueRequests.get(venue).get(counterValue) != “PENDING”
+                            IF date >= venueRequests.get(venue).get(counterValue)[0] && date <= venueRequests.get(venue).get(counterValue)[0]
+                                IF time >= venueRequests.get(venue).get(counterValue)[1] && date <= venueRequests.get(venue).get(counterValue)[1]
+                                    SET scheduleConflicts = true
+                                    SET counterValue = counterLimit + 1
+                                ENDIF	
+                            ENDIF
+                        ENDIF
+                    ENDIF
+                SET counterValue = counterValue + 1
+                ENDWHILE
+
+                IF scheduleConflicts = false
+                    Display "Reason/Rationale:"
+                    INPUT reason
+                    SET venueRequests.get(venue).add(new ArrayList<>({date, time, accountName, reason, “Pending”})
+                    DISPLAY "reservation request submitted"
+                    SET isLoopRunning = false
+                ELSE
+                    DISPLAY "Schedule Conflicts, Please try again"
+                ENDIF
+            ENDIF
+            
+            ELSEIF choice == 5
+                DISPLAY "Select a Venue"
+                INPUT venue
+
+                // Display Venue Requests
+                IF venue > 0 AND venue < venues.size() - 1
+                    SET counterValue = 0
+                    SET counterLimit = venueRequests.get(venue).size()
+                    WHILE counterValue < counterLimit  
+                        DISPLAY (counterValue + 1) + ". " + venues.get(venue) + "|" + venueRequests.get(venue).get(counterValue)[0] + venueRequests.get(venue).get(counterValue)[1] 
+                        SET counterValue = counterValue + 1
+                    ENDWHILE
+
+                    DISPLAY "Which Venue Request Would You Like to View?"
+                    INPUT venueRequest
+
+                    DISPLAY "Name: " + venues.get(venue)
+                    DISPLAY "Date: " + venueRequests.get(venue).get(venueRequest)[0]
+                    DISPLAY "Time: " + venueRequests.get(venue).get(venueRequest)[1]
+                    DISPLAY "Made by: " + venueRequests.get(venue).get(venueRequest)[2]
+                    DISPLAY "Reason: " + venueRequests.get(venue).get(venueRequest)[3]
+                    DISPLAY "Status: " + venueRequests.get(venue).get(venueRequest)[4]
+
+                    DISPLAY "0. exit"
+                    DISPLAY "1. delete"
+                    INPUT choice
+
+                    IF choice = 1{
+                        venueRequests.get(venue).remove(venueRequest).
+                    }
+                    ENDIF
+                ELSE
+                    DISPLAY "Invalid Venue"
+                ENDIF
+            
+            ELSEIF accountType == "ADMIN"
+                IF choice == 6
+                    DISPLAY "Select a Venue"
+                    INPUT venue
+
+                    // Display Venue Requests
+                    SET counterValue = 0
+                    SET counterLimit = venueRequests.get(venue).size()
+                    WHILE counterValue < counterLimit  
+                        DISPLAY (counterValue + 1) + ". " + venues.get(venue) + "|" + venueRequests.get(venue).get(counterValue)[0] + venueRequests.get(venue).get(counterValue)[1] 
+                        SET counterValue = counterValue + 1
+                    ENDWHILE
+
+                    DISPLAY "Which Venue Request Would You Like to View?"
+                    INPUT venueRequest
+
+                    DISPLAY "Name: " + venues.get(venue)
+                    DISPLAY "Date: " + venueRequests.get(venue).get(venueRequest)[0]
+                    DISPLAY "Time: " + venueRequests.get(venue).get(venueRequest)[1]
+                    DISPLAY "Made by: " + venueRequests.get(venue).get(venueRequest)[2]
+                    DISPLAY "Reason: " + venueRequests.get(venue).get(venueRequest)[3]
+                    DISPLAY "Status: " + venueRequests.get(venue).get(venueRequest)[4]
+
+                    DISPLAY "1. Reject"
+                    DISPLAY “2. Pending”
+                    DISPLAY "3. Approve"
+                    INPUT choice
+
+                    IF choice = 1
+                        venueRequests.get(venue).get(venueRequest)[4] = “REJECTED”
+                    ELSE IF choice = 1
+                        venueRequests.get(venue).get(venueRequest)[4] = “PENDING”
+                    ELSE IF choice = 1
+                        venueRequests.get(venue).get(venueRequest)[4] = “APPROVED”
+                    ENDIF
+                
+                ELSEIF choice == 7
+                    DISPLAY “Venue Name: “
+                    INPUT venueName
+                    venues.add(venueName)
+
+
+                ELSEIF choice == 8
+                    DISPLAY "Venues:”
+                    SET counterValue = 0
+                    SET counterLimit = venues.size()
+                    DISPLAY “0. None”
+                    WHILE counterValue < counterLimit
+                        DISPLAY (counterValue + 1) + “. “ + venues[counterValue]
+                        SET counterValue = counterValue + 1
+                    ENDWHILE
+                    DISPLAY “Which Venue Will You Delete?"
+                    INPUT choice
+                    IF choice > 0 AND choice < venues.size() - 1
+                        venueRequests.remove(choice)
+                        venues.remove(choice)
+                    ENDIF
+                ENDIF
+            ENDIF
+        ELSE
+            WHILE (isLoggedIn  == false)
+                DISPLAY “Account Name (or press q to quit):”
+                INPUT accountName
+                IF accountName == “q”
+                    SET isLoggedIn = true
+                    SET isRunning = false
+                ENDIF
+
+                DISPLAY “Password”
+                INPUT password
+                
+                IF accountName == “Student” AND password = “0000”
+                    SET accountType = “USER”
+                    SET isLoggedIn = true
+                ELSE IF accountName == “Admin” AND password = “1235”
+                    SET accountType = “ADMIN”
+                    SET isLoggedIn = true
+                ENDIF
+            ENDWHILE
+        ENDIF
+    ENDWHILE
+STOP
